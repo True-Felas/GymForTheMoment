@@ -4,7 +4,7 @@ import customtkinter as ctk
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Panel de Actividad - Gimnasio")
+        self.title("Gimnasio")
         self.geometry("900x600")
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
@@ -57,7 +57,3 @@ class App(ctk.CTk):
             font=("Arial", 18, "bold")
         )
         btn.grid(row=fila, column=columna, padx=20, pady=20)
-
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()
