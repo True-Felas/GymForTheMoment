@@ -6,27 +6,27 @@ class Login(ctk.CTk):
         super().__init__()
         self.controller = controller
         
+        # Definir tamaño de ventana
+        self.WINDOW_WIDTH = 600
+        self.WINDOW_HEIGHT = 750
+        
         self.title("Gimnasio - Iniciar Sesión")
-        self.geometry("450x600")
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
         
-        # Centrar ventana
-        self.center_window()
-        
         # Variable para alternar entre login y registro
         self.modo_registro = False
+        
+        # Centrar ventana
+        self.center_window()
         
         self.crear_interfaz_login()
     
     def center_window(self):
         """Centra la ventana en la pantalla"""
-        self.update_idletasks()
-        width = self.winfo_width()
-        height = self.winfo_height()
-        x = (self.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.winfo_screenheight() // 2) - (height // 2)
-        self.geometry(f'{width}x{height}+{x}+{y}')
+        x = (self.winfo_screenwidth() // 2) - (self.WINDOW_WIDTH // 2)
+        y = (self.winfo_screenheight() // 2) - (self.WINDOW_HEIGHT // 2)
+        self.geometry(f'{self.WINDOW_WIDTH}x{self.WINDOW_HEIGHT}+{x}+{y}')
     
     def crear_interfaz_login(self):
         """Crea la interfaz de login/registro"""
@@ -63,9 +63,9 @@ class Login(ctk.CTk):
         self.usuario_entry = ctk.CTkEntry(
             form_frame,
             placeholder_text="Ingresa tu usuario",
-            width=300,
-            height=40,
-            font=("Arial", 12)
+            width=350,
+            height=45,
+            font=("Arial", 13)
         )
         self.usuario_entry.pack(pady=(0, 15), padx=30)
         
@@ -80,9 +80,9 @@ class Login(ctk.CTk):
             form_frame,
             placeholder_text="Ingresa tu contraseña",
             show="•",
-            width=300,
-            height=40,
-            font=("Arial", 12)
+            width=350,
+            height=45,
+            font=("Arial", 13)
         )
         self.password_entry.pack(pady=(0, 15), padx=30)
         
@@ -97,9 +97,9 @@ class Login(ctk.CTk):
             form_frame,
             placeholder_text="Confirma tu contraseña",
             show="•",
-            width=300,
-            height=40,
-            font=("Arial", 12)
+            width=350,
+            height=45,
+            font=("Arial", 13)
         )
         
         # Label de error
@@ -116,8 +116,8 @@ class Login(ctk.CTk):
             form_frame,
             text="Iniciar Sesión",
             command=self.intentar_login,
-            width=300,
-            height=45,
+            width=350,
+            height=50,
             font=("Arial", 16, "bold"),
             fg_color="#0284C7",
             hover_color="#0369A1"
@@ -136,8 +136,8 @@ class Login(ctk.CTk):
             form_frame,
             text="¿No tienes cuenta? Regístrate",
             command=self.cambiar_modo,
-            width=300,
-            height=40,
+            width=350,
+            height=45,
             font=("Arial", 14),
             fg_color="transparent",
             hover_color="#1E293B",
@@ -146,7 +146,7 @@ class Login(ctk.CTk):
         self.boton_cambiar.pack(pady=(0, 30), padx=30)
         
         # Bind Enter key
-        self.password_entry.bind("<Return>", lambda e: self.intentar_accion())
+        self.password_entry.bind("<Return>", lambda e: self.intentar_login())
         self.usuario_entry.bind("<Return>", lambda e: self.password_entry.focus())
     
     def cambiar_modo(self):
