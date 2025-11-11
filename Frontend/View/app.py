@@ -72,6 +72,7 @@ class App(ctk.CTk):
         # Segunda fila de botones
         self.crear_boton_accion(frame_acciones, "Ver Progreso", "#DC2626", 1, 0, self.abrir_progreso)
         self.crear_boton_accion(frame_acciones, "Historial", "#A855F7", 1, 1, self.abrir_historial)
+        self.crear_boton_accion(frame_acciones, "Salir", "#6B7280", 1, 2, self.destroy)
 
     # ==== Metodo para crear tarjetas ====
     def crear_tarjeta(self, parent, titulo, valor, color, fila, columna):

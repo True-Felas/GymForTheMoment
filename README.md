@@ -19,8 +19,15 @@ Aplicación de gestión de gimnasio desarrollada en Python con CustomTkinter.
 - 📊 Generación automática de recibos mensuales
 - 💰 Registro de pagos por parte del usuario
 - 📋 **Listado de usuarios morosos** (pagos pendientes)
-- 🔍 Comparación de recibos vs pagos realizados
-- 👤 Vista de administrador para gestión completa
+- 🔍 Estadísticas de pagos (total recaudado, pendientes, tasa de cumplimiento)
+- 👤 **Vista de administrador** con gestión completa:
+  - 👥 Gestión de usuarios (ver todos, control de pagos)
+  - 📊 Estadísticas globales de pagos
+  - � Lista de usuarios morosos
+  - ⚙️ Generación de recibos del mes actual
+  - ✏️ Control para resetear pagos (ideal para pruebas)
+- 🟢 Indicadores visuales de estado (pagado/pendiente)
+- 📅 Solo genera recibos del mes actual para nuevos usuarios
 
 ### Sistema de Niveles
 
@@ -107,6 +114,7 @@ GymForTheMoment/
 │   ├── DataBase/
 │   │   └── database.py
 │   └── Model/
+│       ├── pago_model.py
 │       ├── reserv_model.py
 │       ├── rutina_model.py
 │       └── user_model.py
@@ -115,20 +123,25 @@ GymForTheMoment/
 │       ├── app.py
 │       ├── historial_view.py
 │       ├── login.py
+│       ├── pagos_view.py
 │       ├── progreso_view.py
 │       ├── reserv_view.py
 │       └── rutinas_view.py
+├── Docu/
+│   ├── CAMBIOS_IMPLEMENTADOS.md
+│   ├── DEMO_PAGOS.md
+│   ├── DOCUMENTACION_DIAGRAMAS.md
+│   └── NUEVAS_FUNCIONALIDADES.md
+├── Test/
+│   └── test_database.py
 ├── gimnasio.db
 ├── main.py
-├── test_database.py
-├── CAMBIOS_IMPLEMENTADOS.md
-├── NUEVAS_FUNCIONALIDADES.md
 └── README.md
 ```
 
 ## 🗃️ Base de Datos
 
-La aplicación utiliza SQLite con 3 tablas principales:
+La aplicación utiliza SQLite con 4 tablas principales:
 
 ### `usuarios`
 
@@ -148,6 +161,12 @@ La aplicación utiliza SQLite con 3 tablas principales:
 - Estado de pago (pagado/pendiente)
 - Fecha de pago registrada
 - Monto de la cuota (50€)
+
+### `rutinas_completadas`
+
+- Historial de rutinas realizadas
+- Nivel de dificultad
+- Fecha de realización
 
 ## 🎯 Funcionalidades Destacadas
 
@@ -171,9 +190,10 @@ La aplicación utiliza SQLite con 3 tablas principales:
 
 ## 📖 Documentación Adicional
 
-- [CAMBIOS_IMPLEMENTADOS.md](CAMBIOS_IMPLEMENTADOS.md) - Cambios iniciales (SQLite, máquinas, niveles)
-- [NUEVAS_FUNCIONALIDADES.md](NUEVAS_FUNCIONALIDADES.md) - Funcionalidades recientes (historial, rutinas, perfil)
-- [DOCUMENTACION_DIAGRAMAS.md](DOCUMENTACION_DIAGRAMAS.md) - **Diagramas completos del sistema** (E-R, Clases UML, Casos de Uso, Secuencia)
+- [Docu/CAMBIOS_IMPLEMENTADOS.md](Docu/CAMBIOS_IMPLEMENTADOS.md) - Cambios iniciales (SQLite, máquinas, niveles)
+- [Docu/NUEVAS_FUNCIONALIDADES.md](Docu/NUEVAS_FUNCIONALIDADES.md) - Funcionalidades recientes (historial, rutinas, perfil)
+- [Docu/DOCUMENTACION_DIAGRAMAS.md](Docu/DOCUMENTACION_DIAGRAMAS.md) - **Diagramas completos del sistema** (E-R, Clases UML, Casos de Uso, Secuencia)
+- [Docu/DEMO_PAGOS.md](Docu/DEMO_PAGOS.md) - **Guía de demostración del sistema de pagos**
 
 ## 🤝 Contribuciones
 

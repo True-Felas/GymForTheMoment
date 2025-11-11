@@ -42,8 +42,10 @@ class PagosView(ctk.CTkToplevel):
 
     def crear_interfaz(self):
         """Crea la interfaz de pagos"""
-        # Generar recibos de ejemplo automáticamente
-        self.pago_model.generar_recibos_ejemplo()
+        # Solo generar el recibo del mes actual si no existe
+        from datetime import datetime
+        ahora = datetime.now()
+        self.pago_model.generar_recibo_mensual(self.usuario_id, ahora.month, ahora.year)
         
         # Título
         titulo_texto = "Gestión de Pagos" if self.es_admin else "Mis Pagos Mensuales"
@@ -757,19 +759,38 @@ class PagosView(ctk.CTkToplevel):
 
     def generar_recibos_mes(self):
         """Genera los recibos del mes actual para todos los usuarios"""
-        # Generar también recibos de ejemplo
-        recibos_generados = self.pago_model.generar_recibos_ejemplo()
+        from datetime import datetime
+        ahora = datetime.now()
+        
+        recibos_generados = 0
+        try:
+            from Backend.DataBase.database import Database
+            conn = Database.get_connection()
+            cursor = conn.cursor()
+            
+            # Obtener todos los usuarios
+            cursor.execute("SELECT id FROM usuarios")
+            usuarios = cursor.fetchall()
+            
+            for (usuario_id,) in usuarios:
+                if self.pago_model.generar_recibo_mensual(usuario_id, ahora.month, ahora.year):
+                    recibos_generados += 1
+            
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error al generar recibos: {e}")
         
         if recibos_generados > 0:
             self.resultado_label.configure(
-                text=f"[OK] Se generaron {recibos_generados} recibos exitosamente",
+                text=f"✓ Se generaron {recibos_generados} recibos exitosamente",
                 text_color="#22C55E"
             )
             # Actualizar vista de administrador
             self.after(1000, lambda: [self.destroy(), PagosView(self.master, self.usuario_id, True)])
         else:
             self.resultado_label.configure(
-                text="Los recibos ya fueron generados",
+                text="Los recibos del mes actual ya fueron generados",
                 text_color="#EAB308"
             )
 

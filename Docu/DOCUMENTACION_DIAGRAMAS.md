@@ -105,7 +105,7 @@
 │    UserModel        │ │  ReservaModel    │ │  RutinaModel  │ │  PagoModel    │
 ├─────────────────────┤ ├──────────────────┤ ├───────────────┤ ├───────────────┤
 │ + validar_usuario() │ │ + MAQUINAS[]     │ │ + RUTINAS{}   │ │ + CUOTA: 50.0 │
-│ + registrar_usuario()│ │ + HORARIOS[]     │ │ + obtener_    │ │ + generar_    │
+│ + registrar_usuario()││ + HORARIOS[]     │ │ + obtener_    │ │ + generar_    │
 │ + obtener_id()      │ │ + crear_reserva()│ │   rutina()    │ │   recibo()    │
 │ + obtener_stats()   │ │ + maquina_       │ │ + marcar_     │ │ + registrar_  │
 │ + incrementar_      │ │   disponible()   │ │   completada()│ │   pago()      │
@@ -180,49 +180,49 @@
 ```
                     GymForTheMoment - Casos de Uso
 
-        Actor: Usuario                                Actor: Administrador
-            │                                              │
-            │                                              │
+        Actor: Usuario                               Actor: Administrador
+            │                                             │
+            │                                             │
             ├──► (Registrarse)                            │
-            │                                              │
+            │                                             │
             ├──► (Iniciar Sesión)                         │
-            │         │                                    │
+            │         │                                   │
             │         └──────────────┐                    │
             │                        │                    │
             ├──► (Hacer Reserva)     │                    ├──► (Ver Estadísticas)
             │         │              │                    │
             │         │              │                    ├──► (Ver Usuarios Morosos)
-            │         ├── «include» ─┴─► (Validar L-V)   │
+            │         ├── «include» ─┴─► (Validar L-V)    │
             │         │                                   │
             │         └── «include» ───► (Verificar       ├──► (Generar Recibos)
             │                            Disponibilidad)  │
-            │                                              │
+            │                                             │
             ├──► (Ver Historial)                          │
-            │                                              │
+            │                                             │
             ├──► (Completar Rutina)                       │
-            │         │                                    │
+            │         │                                   │
             │         └── «extend» ────► (Subir Nivel)    │
-            │                                              │
+            │                                             │
             ├──► (Ver Progreso/Perfil)                    │
-            │                                              │
+            │                                             │
             ├──► (Gestionar Pagos) ◄──────────────────────┤
-            │         │                                    │
+            │         │                                   │
             │         ├── «include» ───► (Registrar Pago) │
-            │         │                                    │
+            │         │                                   │
             │         └── «include» ───► (Ver Deuda)      │
-            │                                              │
-            │                                              │
+            │                                             │
+            │                                             │
      ┌──────┴──────────────────────────────────────────┬──┴──────┐
-     │                                                  │         │
-     │          SISTEMA: GymForTheMoment                │         │
-     │                                                  │         │
+     │                                                 │         │
+     │          SISTEMA: GymForTheMoment               │         │
+     │                                                 │         │
      │  Funcionalidades Automáticas:                   │         │
      │  - Procesar reservas vencidas                   │         │
      │  - Incrementar nivel (cada 3 reservas)          │         │
      │  - Generar recibos mensuales                    │         │
      │  - Calcular horas entrenadas                    │         │
-     │                                                  │         │
-     └──────────────────────────────────────────────────┴─────────┘
+     │                                                 │         │
+     └─────────────────────────────────────────────────┴─────────┘
 ```
 
 **Casos de Uso Principales:**
@@ -278,7 +278,7 @@ Usuario    ReservasView   ReservaModel   Database    ReservasController  UserMod
    │            │ semana()     │            │                 │              │
    │            │              │            │                 │              │
    │            │ Si sábado/domingo         │                 │              │
-   │ ◄──────────┤ ERROR: "Solo L-V"        │                 │              │
+   │ ◄──────────┤ ERROR: "Solo L-V"         │                 │              │
    │            │              │            │                 │              │
    │──────────► │              │            │                 │              │
    │ Selecciona │              │            │                 │              │
@@ -475,7 +475,7 @@ Admin      PagosView     PagoModel      Database
 │   ├── usuarios                                  │
 │   ├── reservas                                  │
 │   ├── pagos                                     │
-│   └── rutinas_completadas                      │
+│   └── rutinas_completadas                       │
 └─────────────────────────────────────────────────┘
 ```
 
