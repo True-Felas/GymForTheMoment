@@ -10,12 +10,12 @@ class ReservasView(ctk.CTkToplevel):
         self.usuario_id = usuario_id
         self.callback_actualizar = callback_actualizar
         self.fecha_seleccionada = None
-        self.clase_seleccionada = None
+        self.maquina_seleccionada = None
         self.hora_seleccionada = None
 
-        self.title("Reservar Clase")
-        self.geometry("900x700")
-        self.resizable(False, False)
+        self.title("Reservar Máquina")
+        self.geometry("1100x800")
+        self.resizable(True, True)
 
         # Centrar el diálogo
         self.center_window()
@@ -29,8 +29,8 @@ class ReservasView(ctk.CTkToplevel):
     def center_window(self):
         """Centra la ventana en la pantalla"""
         self.update_idletasks()
-        width = 900
-        height = 700
+        width = 1100
+        height = 800
         x = (self.winfo_screenwidth() // 2) - (width // 2)
         y = (self.winfo_screenheight() // 2) - (height // 2)
         self.geometry(f'{width}x{height}+{x}+{y}')
@@ -43,7 +43,7 @@ class ReservasView(ctk.CTkToplevel):
         # Título
         ctk.CTkLabel(
             self,
-            text="📅 Nueva Reserva",
+            text="Reservar Máquina",
             font=("Arial", 32, "bold")
         ).pack(pady=20)
 
@@ -51,14 +51,14 @@ class ReservasView(ctk.CTkToplevel):
         main_frame = ctk.CTkFrame(self, fg_color="transparent")
         main_frame.pack(pady=10, padx=30, fill="both", expand=True)
 
-        # === COLUMNA IZQUIERDA: Calendario y Clases ===
+        # === COLUMNA IZQUIERDA: Calendario y Máquinas ===
         left_frame = ctk.CTkFrame(main_frame, corner_radius=15)
         left_frame.pack(side="left", padx=10, pady=10, fill="both", expand=True)
 
         # Paso 1: Seleccionar Fecha
         ctk.CTkLabel(
             left_frame,
-            text="1️⃣ Selecciona una fecha:",
+            text="1. Selecciona una fecha:",
             font=("Arial", 18, "bold")
         ).pack(pady=(20, 10))
 
@@ -85,23 +85,23 @@ class ReservasView(ctk.CTkToplevel):
         self.calendario.pack(pady=10, padx=20)
         self.calendario.bind("<<CalendarSelected>>", self.on_fecha_seleccionada)
 
-        # Paso 2: Seleccionar Clase
+        # Paso 2: Seleccionar Máquina
         ctk.CTkLabel(
             left_frame,
-            text="2️⃣ Selecciona una clase:",
+            text="2. Selecciona una máquina:",
             font=("Arial", 18, "bold")
         ).pack(pady=(20, 10))
 
-        # Frame scrollable para clases
-        clases_frame = ctk.CTkScrollableFrame(left_frame, height=150)
-        clases_frame.pack(pady=10, padx=20, fill="x")
+        # Frame scrollable para máquinas
+        maquinas_frame = ctk.CTkScrollableFrame(left_frame, height=200)
+        maquinas_frame.pack(pady=10, padx=20, fill="x")
 
-        self.botones_clases = {}
-        for clase in ReservaModel.CLASES_DISPONIBLES:
+        self.botones_maquinas = {}
+        for maquina in ReservaModel.MAQUINAS_DISPONIBLES:
             btn = ctk.CTkButton(
-                clases_frame,
-                text=clase,
-                command=lambda c=clase: self.on_clase_seleccionada(c),
+                maquinas_frame,
+                text=maquina,
+                command=lambda m=maquina: self.on_maquina_seleccionada(m),
                 fg_color="transparent",
                 border_width=2,
                 border_color="#0284C7",
@@ -110,7 +110,7 @@ class ReservasView(ctk.CTkToplevel):
                 font=("Arial", 14)
             )
             btn.pack(pady=5, padx=5, fill="x")
-            self.botones_clases[clase] = btn
+            self.botones_maquinas[maquina] = btn
 
         # === COLUMNA DERECHA: Horarios y Confirmación ===
         right_frame = ctk.CTkFrame(main_frame, corner_radius=15)
@@ -119,7 +119,7 @@ class ReservasView(ctk.CTkToplevel):
         # Paso 3: Seleccionar Hora
         ctk.CTkLabel(
             right_frame,
-            text="3️⃣ Selecciona un horario:",
+            text="3. Selecciona un horario:",
             font=("Arial", 18, "bold")
         ).pack(pady=(20, 10))
 
@@ -129,33 +129,26 @@ class ReservasView(ctk.CTkToplevel):
 
         ctk.CTkLabel(
             leyenda_frame,
-            text="🟢 Disponible",
+            text="● Disponible",
             font=("Arial", 10),
             text_color="#22C55E"
         ).pack(side="left", padx=10)
 
         ctk.CTkLabel(
             leyenda_frame,
-            text="🟡 Pocas plazas",
-            font=("Arial", 10),
-            text_color="#EAB308"
-        ).pack(side="left", padx=10)
-
-        ctk.CTkLabel(
-            leyenda_frame,
-            text="🔴 Completo",
+            text="● Ocupada",
             font=("Arial", 10),
             text_color="#DC2626"
         ).pack(side="left", padx=10)
 
         # Frame scrollable para horarios
-        self.horarios_frame = ctk.CTkScrollableFrame(right_frame, height=250)
+        self.horarios_frame = ctk.CTkScrollableFrame(right_frame, height=300)
         self.horarios_frame.pack(pady=10, padx=20, fill="both", expand=True)
 
         # Mensaje inicial
         ctk.CTkLabel(
             self.horarios_frame,
-            text="Selecciona una fecha y clase\npara ver horarios disponibles",
+            text="Selecciona una fecha y máquina\npara ver horarios disponibles",
             font=("Arial", 13),
             text_color="gray"
         ).pack(pady=50)
@@ -166,7 +159,7 @@ class ReservasView(ctk.CTkToplevel):
 
         ctk.CTkLabel(
             self.resumen_frame,
-            text="📋 Resumen de tu reserva:",
+            text="Resumen de tu reserva:",
             font=("Arial", 16, "bold")
         ).pack(pady=10)
 
@@ -194,7 +187,7 @@ class ReservasView(ctk.CTkToplevel):
         # Botón Confirmar
         self.boton_confirmar = ctk.CTkButton(
             buttons_frame,
-            text="✅ Confirmar Reserva",
+            text="Confirmar Reserva",
             command=self.guardar_reserva,
             fg_color="#22C55E",
             hover_color="#16A34A",
@@ -208,7 +201,7 @@ class ReservasView(ctk.CTkToplevel):
         # Botón Cancelar
         ctk.CTkButton(
             buttons_frame,
-            text="❌ Cancelar",
+            text="Cancelar",
             command=self.destroy,
             fg_color="#DC2626",
             hover_color="#B91C1C",
@@ -220,16 +213,27 @@ class ReservasView(ctk.CTkToplevel):
     def on_fecha_seleccionada(self, event):
         """Se ejecuta cuando se selecciona una fecha del calendario"""
         self.fecha_seleccionada = self.calendario.get_date()
+        
+        # Validar que sea de lunes a viernes
+        fecha_obj = datetime.strptime(self.fecha_seleccionada, "%Y-%m-%d")
+        dia_semana = fecha_obj.weekday()  # 0=Lunes, 6=Domingo
+        
+        if dia_semana >= 5:  # 5=Sábado, 6=Domingo
+            self.error_label.configure(text="Solo se permiten reservas de Lunes a Viernes")
+            self.fecha_seleccionada = None
+            return
+        
+        self.error_label.configure(text="")
         self.actualizar_horarios()
         self.actualizar_resumen()
 
-    def on_clase_seleccionada(self, clase):
-        """Se ejecuta cuando se selecciona una clase"""
-        self.clase_seleccionada = clase
+    def on_maquina_seleccionada(self, maquina):
+        """Se ejecuta cuando se selecciona una máquina"""
+        self.maquina_seleccionada = maquina
 
         # Actualizar colores de botones
-        for nombre, boton in self.botones_clases.items():
-            if nombre == clase:
+        for nombre, boton in self.botones_maquinas.items():
+            if nombre == maquina:
                 boton.configure(fg_color="#0284C7", border_color="#0284C7")
             else:
                 boton.configure(fg_color="transparent", border_color="#0284C7")
@@ -238,60 +242,48 @@ class ReservasView(ctk.CTkToplevel):
         self.actualizar_resumen()
 
     def actualizar_horarios(self):
-        """Actualiza la lista de horarios con indicadores de capacidad"""
+        """Actualiza la lista de horarios con indicadores de disponibilidad"""
         # Limpiar frame de horarios
         for widget in self.horarios_frame.winfo_children():
             widget.destroy()
 
-        if not self.fecha_seleccionada or not self.clase_seleccionada:
+        if not self.fecha_seleccionada or not self.maquina_seleccionada:
             ctk.CTkLabel(
                 self.horarios_frame,
-                text="Selecciona una fecha y clase\npara ver horarios disponibles",
+                text="Selecciona una fecha y máquina\npara ver horarios disponibles",
                 font=("Arial", 13),
                 text_color="gray"
             ).pack(pady=50)
             return
 
-        # Obtener información de todos los horarios
-        info_horarios = self.reserva_model.obtener_info_horarios(
+        # Obtener información de todos los horarios para esta máquina
+        info_horarios = self.reserva_model.obtener_info_horarios_maquina(
             self.fecha_seleccionada,
-            self.clase_seleccionada
+            self.maquina_seleccionada
         )
 
-        # Mostrar horarios con indicadores de capacidad
+        # Mostrar horarios con indicadores de disponibilidad
         self.botones_horarios = {}
         for info in info_horarios:
             hora = info['hora']
-            reservas = info['reservas']
-            capacidad = info['capacidad_maxima']
-            cupos = info['cupos_disponibles']
             disponible = info['disponible']
-            porcentaje = info['porcentaje_ocupacion']
 
-            # Determinar color según ocupación
+            # Determinar color según disponibilidad
             if not disponible:
-                # Completo (rojo)
+                # Ocupada (rojo)
                 color_fg = "#DC2626"
                 color_border = "#DC2626"
                 color_hover = "#B91C1C"
-                icono = "🔴"
-                estado = "COMPLETO"
+                icono = "[X]"
+                estado = "OCUPADA"
                 enabled = False
-            elif porcentaje >= 70:
-                # Pocas plazas (amarillo)
-                color_fg = "transparent"
-                color_border = "#EAB308"
-                color_hover = "#EAB308"
-                icono = "🟡"
-                estado = f"{cupos} plazas"
-                enabled = True
             else:
                 # Disponible (verde)
                 color_fg = "transparent"
                 color_border = "#22C55E"
                 color_hover = "#22C55E"
-                icono = "🟢"
-                estado = f"{cupos} plazas"
+                icono = "[✓]"
+                estado = "Disponible"
                 enabled = True
 
             # Crear frame para el botón y la info
@@ -325,53 +317,44 @@ class ReservasView(ctk.CTkToplevel):
             if h == hora:
                 boton.configure(fg_color="#22C55E", border_color="#22C55E")
             else:
-                # Restaurar color según disponibilidad
-                info = self.reserva_model.obtener_info_horarios(
-                    self.fecha_seleccionada,
-                    self.clase_seleccionada
-                )
-                for i in info:
-                    if i['hora'] == h:
-                        if i['porcentaje_ocupacion'] >= 70:
-                            boton.configure(fg_color="transparent", border_color="#EAB308")
-                        else:
-                            boton.configure(fg_color="transparent", border_color="#22C55E")
+                # Restaurar color disponible
+                boton.configure(fg_color="transparent", border_color="#22C55E")
 
         self.actualizar_resumen()
         self.boton_confirmar.configure(state="normal")
 
     def actualizar_resumen(self):
         """Actualiza el resumen de la reserva"""
-        if not self.fecha_seleccionada and not self.clase_seleccionada and not self.hora_seleccionada:
+        if not self.fecha_seleccionada and not self.maquina_seleccionada and not self.hora_seleccionada:
             texto = "Aún no has seleccionado nada"
         else:
-            fecha_texto = f"📅 Fecha: {self.fecha_seleccionada}" if self.fecha_seleccionada else ""
-            clase_texto = f"\n🏋️ Clase: {self.clase_seleccionada}" if self.clase_seleccionada else ""
-            hora_texto = f"\n🕐 Hora: {self.hora_seleccionada}" if self.hora_seleccionada else ""
-            texto = fecha_texto + clase_texto + hora_texto
+            fecha_texto = f"Fecha: {self.fecha_seleccionada}" if self.fecha_seleccionada else ""
+            maquina_texto = f"\nMáquina: {self.maquina_seleccionada}" if self.maquina_seleccionada else ""
+            hora_texto = f"\nHora: {self.hora_seleccionada}" if self.hora_seleccionada else ""
+            texto = fecha_texto + maquina_texto + hora_texto
 
         self.resumen_label.configure(text=texto, text_color="white" if self.hora_seleccionada else "gray")
 
     def guardar_reserva(self):
         """Guarda la reserva en la base de datos"""
-        if not self.fecha_seleccionada or not self.clase_seleccionada or not self.hora_seleccionada:
+        if not self.fecha_seleccionada or not self.maquina_seleccionada or not self.hora_seleccionada:
             self.error_label.configure(text="Por favor, completa todos los campos")
             return
 
-        # Verificar nuevamente que hay cupo (por si alguien reservó mientras tanto)
-        if not self.reserva_model.hay_cupo_disponible(
+        # Verificar nuevamente que la máquina está disponible
+        if not self.reserva_model.maquina_disponible(
                 self.fecha_seleccionada,
-                self.clase_seleccionada,
+                self.maquina_seleccionada,
                 self.hora_seleccionada
         ):
-            self.error_label.configure(text="Lo sentimos, esta clase se llenó")
+            self.error_label.configure(text="Lo sentimos, esta máquina ya fue reservada")
             self.actualizar_horarios()  # Actualizar la lista
             return
 
         # Crear la reserva
         if self.reserva_model.crear_reserva(
                 self.usuario_id,
-                self.clase_seleccionada,
+                self.maquina_seleccionada,
                 self.fecha_seleccionada,
                 self.hora_seleccionada
         ):
@@ -382,7 +365,7 @@ class ReservasView(ctk.CTkToplevel):
             self.destroy()
             self.mostrar_mensaje_exito()
         else:
-            self.error_label.configure(text="Error al crear la reserva o clase llena")
+            self.error_label.configure(text="Error al crear la reserva o máquina ocupada")
 
     def mostrar_mensaje_exito(self):
         """Muestra un mensaje de éxito"""
@@ -403,7 +386,7 @@ class ReservasView(ctk.CTkToplevel):
 
         ctk.CTkLabel(
             msg,
-            text="✅",
+            text="[OK]",
             font=("Arial", 48)
         ).pack(pady=20)
 
@@ -415,7 +398,7 @@ class ReservasView(ctk.CTkToplevel):
 
         ctk.CTkLabel(
             msg,
-            text=f"{self.clase_seleccionada} - {self.fecha_seleccionada} a las {self.hora_seleccionada}",
+            text=f"{self.maquina_seleccionada} - {self.fecha_seleccionada} a las {self.hora_seleccionada}",
             font=("Arial", 14),
             text_color="gray"
         ).pack(pady=10)

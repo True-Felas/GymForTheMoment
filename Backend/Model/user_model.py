@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from Backend.DataBase.database import Database
-from mysql.connector import Error
+import sqlite3
 
 class UserModel:
     def __init__(self):
@@ -27,16 +27,16 @@ class UserModel:
             for nombre, password in usuarios_ejemplo:
                 try:
                     cursor.execute(
-                        "INSERT INTO usuarios (nombre, password) VALUES (%s, %s)",
+                        "INSERT INTO usuarios (nombre, password) VALUES (?, ?)",
                         (nombre, password)
                     )
                     conn.commit()
-                except Error:
+                except sqlite3.IntegrityError:
                     pass  # Usuario ya existe
             
             cursor.close()
             conn.close()
-        except Error as e:
+        except sqlite3.Error as e:
             print(f"Error al insertar usuarios de ejemplo: {e}")
 
     def validar_usuario(self, nombre, password):
@@ -46,7 +46,7 @@ class UserModel:
             cursor = conn.cursor()
             
             cursor.execute(
-                "SELECT id FROM usuarios WHERE nombre = %s AND password = %s",
+                "SELECT id FROM usuarios WHERE nombre = ? AND password = ?",
                 (nombre, password)
             )
             result = cursor.fetchone()
@@ -55,7 +55,7 @@ class UserModel:
             conn.close()
             
             return result is not None
-        except Error as e:
+        except sqlite3.Error as e:
             print(f"Error al validar usuario: {e}")
             return False
     
@@ -67,7 +67,7 @@ class UserModel:
             
             # Verificar si el usuario ya existe
             cursor.execute(
-                "SELECT id FROM usuarios WHERE nombre = %s",
+                "SELECT id FROM usuarios WHERE nombre = ?",
                 (nombre,)
             )
             
@@ -78,7 +78,7 @@ class UserModel:
             
             # Insertar nuevo usuario
             cursor.execute(
-                "INSERT INTO usuarios (nombre, password, nivel) VALUES (%s, %s, 1)",
+                "INSERT INTO usuarios (nombre, password, nivel, reservas_completadas) VALUES (?, ?, 1, 0)",
                 (nombre, password)
             )
             conn.commit()
@@ -87,7 +87,7 @@ class UserModel:
             conn.close()
             return True, "Usuario registrado exitosamente"
             
-        except Error as e:
+        except sqlite3.Error as e:
             print(f"Error al registrar usuario: {e}")
             return False, f"Error al registrar: {str(e)}"
     
@@ -98,7 +98,7 @@ class UserModel:
             cursor = conn.cursor()
             
             cursor.execute(
-                "SELECT id FROM usuarios WHERE nombre = %s",
+                "SELECT id FROM usuarios WHERE nombre = ?",
                 (nombre,)
             )
             result = cursor.fetchone()
@@ -107,7 +107,7 @@ class UserModel:
             conn.close()
             
             return result[0] if result else None
-        except Error as e:
+        except sqlite3.Error as e:
             print(f"Error al obtener ID de usuario: {e}")
             return None
     
@@ -119,31 +119,33 @@ class UserModel:
             
             # Total de reservas
             cursor.execute(
-                "SELECT COUNT(*) FROM reservas WHERE usuario_id = %s",
+                "SELECT COUNT(*) FROM reservas WHERE usuario_id = ?",
                 (usuario_id,)
             )
             total_reservas = cursor.fetchone()[0]
             
-            # Horas entrenadas (suma de duraciones de clases asistidas)
+            # Horas entrenadas (suma de duraciones de reservas completadas)
             cursor.execute(
-                "SELECT SUM(duracion) FROM reservas WHERE usuario_id = %s AND asistio = TRUE",
+                "SELECT SUM(duracion) FROM reservas WHERE usuario_id = ? AND completada = 1",
                 (usuario_id,)
             )
             horas_entrenadas = cursor.fetchone()[0] or 0
             
-            # Clases asistidas
+            # Reservas completadas
             cursor.execute(
-                "SELECT COUNT(*) FROM reservas WHERE usuario_id = %s AND asistio = TRUE",
+                "SELECT COUNT(*) FROM reservas WHERE usuario_id = ? AND completada = 1",
                 (usuario_id,)
             )
-            clases_asistidas = cursor.fetchone()[0]
+            reservas_completadas = cursor.fetchone()[0]
             
-            # Nivel del usuario
+            # Nivel del usuario y reservas completadas
             cursor.execute(
-                "SELECT nivel FROM usuarios WHERE id = %s",
+                "SELECT nivel, reservas_completadas FROM usuarios WHERE id = ?",
                 (usuario_id,)
             )
-            nivel = cursor.fetchone()[0]
+            result = cursor.fetchone()
+            nivel = result[0] if result else 1
+            reservas_para_nivel = result[1] if result else 0
             
             cursor.close()
             conn.close()
@@ -151,14 +153,59 @@ class UserModel:
             return {
                 'reservas': total_reservas,
                 'horas': horas_entrenadas,
-                'clases': clases_asistidas,
-                'nivel': nivel
+                'reservas_completadas': reservas_completadas,
+                'nivel': nivel,
+                'reservas_para_nivel': reservas_para_nivel
             }
-        except Error as e:
+        except sqlite3.Error as e:
             print(f"Error al obtener estadísticas: {e}")
             return {
                 'reservas': 0,
                 'horas': 0,
-                'clases': 0,
-                'nivel': 1
+                'reservas_completadas': 0,
+                'nivel': 1,
+                'reservas_para_nivel': 0
             }
+    
+    def incrementar_reservas_completadas(self, usuario_id):
+        """Incrementa el contador de reservas completadas y sube de nivel si es necesario"""
+        try:
+            conn = Database.get_connection()
+            cursor = conn.cursor()
+            
+            # Obtener reservas completadas actuales
+            cursor.execute(
+                "SELECT reservas_completadas, nivel FROM usuarios WHERE id = ?",
+                (usuario_id,)
+            )
+            result = cursor.fetchone()
+            
+            if not result:
+                cursor.close()
+                conn.close()
+                return
+            
+            reservas_completadas = result[0]
+            nivel_actual = result[1]
+            
+            # Incrementar contador
+            nuevas_reservas = reservas_completadas + 1
+            
+            # Cada 3 reservas completadas, sube de nivel
+            nuevo_nivel = nivel_actual
+            if nuevas_reservas % 3 == 0:
+                nuevo_nivel = nivel_actual + 1
+                print(f"¡Usuario {usuario_id} ha subido al nivel {nuevo_nivel}!")
+            
+            # Actualizar en la base de datos
+            cursor.execute(
+                "UPDATE usuarios SET reservas_completadas = ?, nivel = ? WHERE id = ?",
+                (nuevas_reservas, nuevo_nivel, usuario_id)
+            )
+            conn.commit()
+            
+            cursor.close()
+            conn.close()
+            
+        except sqlite3.Error as e:
+            print(f"Error al incrementar reservas completadas: {e}")
